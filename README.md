@@ -42,9 +42,9 @@ perl hc_to_7z.pl -o output.7z hash.txt
 perl hc_to_7z.pl -o jingle.wav.7z -n jingle.wav hash.txt
 ```
 
-# Proof of concept / experimential warning
+# Proof of concept / experimental warning
 
-Please be aware that this tool is highly experimential and was originally meant only as a POC (proof of concept) to help convert some `hashcat` users's hashes back to working `.7z` files, for debugging purposes.
+Please be aware that this tool is highly experimental and was originally meant only as a POC (proof of concept) to help convert some `hashcat` users's hashes back to working `.7z` files, for debugging purposes.
 
 The support of unusual and more advanced combinations of `coders` and `preprocessors` (see `7z2hashcat` README from https://github.com/philsmd/7z2hashcat) is not supported yet (or only very limited support was added, untested).
 
