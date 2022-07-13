@@ -202,7 +202,7 @@ sub add_number
     $num >>= 8;
   }
 
-  $first_byte |= $num; # yeah, we can store some remaining bytes here
+  $first_byte |= $num; # yeah, we can store some remaining bits here
 
   $ret = chr ($first_byte) . $main_bytes;
 
