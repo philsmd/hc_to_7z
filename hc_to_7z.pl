@@ -911,7 +911,7 @@ sub extracted_hash_to_archive
 
     if (! defined ($id))
     {
-      print STDERR "ERROR: unknown codec id " . $c->{'type'} . "/" . $c->{'id'} . " ";
+      print STDERR "ERROR: unknown codec id " . $c->{'type'} . " / " . $c->{'id'} . " ";
       print STDERR "on hash in line $line_num\n";
 
       return "";
@@ -976,7 +976,7 @@ sub extracted_hash_to_archive
 
         if (! defined ($id))
         {
-          print STDERR "ERROR: unknown codec id 0 /" . $main_coder_id . " ";
+          print STDERR "ERROR: unknown codec id 0 / " . $main_coder_id . " ";
           print STDERR "on hash in line $line_num\n";
 
           return "";
@@ -1002,7 +1002,7 @@ sub extracted_hash_to_archive
 
         if (! defined ($id))
         {
-          print STDERR "ERROR: unknown codec id 1 /" . $preprocessor_id . " ";
+          print STDERR "ERROR: unknown codec id 1 / " . $preprocessor_id . " ";
           print STDERR "on hash in line $line_num\n";
 
           return "";
