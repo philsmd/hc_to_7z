@@ -4,10 +4,10 @@
 # Date:    July 2022
 # License: public domain, credits go to philsmd and hashcat
 
-# Version: 0.01
+# Version: 0.02
 
 # Last updated:
-# July 9 2022
+# July 13 2022
 
 # Note: this tool is heavily based on the public domain tool 7z2hashcat from philsmd
 # many functions and file reading/writing ideas are derived directly from 7z2hashcat
@@ -23,7 +23,7 @@ use Digest::CRC qw (crc32);
 #
 
 my $TOOL_NAME    = "hc_to_7z";
-my $TOOL_VERSION = "0.01";
+my $TOOL_VERSION = "0.02";
 
 my $SEVEN_ZIP_FILE_NAME     = "a\x00.\x00t\x00x\x00t\x00"; # a.txt
 my $SEVEN_ZIP_SIGNATURE_LEN = 32;
