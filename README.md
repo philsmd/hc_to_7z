@@ -54,6 +54,18 @@ Being a POC, a lot of small refactorings would be required (especially to avoid 
 
 Please also note that the external tool `7z2hashcat` does **not** convert the file to a hash without losing information. The transformation/conversion by `7z2hashcat` is lossy / **not lossless** and therefore `hc_to_7z` can never have all the correct information (including original file names etc). Many values, properties and attributes used by `hc_to_7z` will therefore just be constant values or dynamically implied/guessed/calculated/determined values.
 
+# Integrity test failure
+
+Sometimes the so-called "integrity test" that is offered/available by some tools, when you run it on the file written by `hc_to_7z`, could fail. This is normally only the case whenever the original archive had more than 1 file compressed and encrypted and they all were part of the same `7z stream` data. This could happen if you have multiple files and a single `stream` "compresses" all of them with one coder (compression algorithm, like `LZMA2`).
+
+Therefore, we would need to both decrypt and decompress the data to see what the raw data of the first file would be (we know only the first file's length) and then we would either need to re-compress and re-encrypt the data, which is `stream data` belonging to more files, with just the raw data of the first file - but this could be considered a little bit of cheating, because we would actually change the original file data -, or use this information to indicate within the written `7-Zip` file, that we have 2+ files with specific file lengths (but we can't be 100% sure where the next boundaries are, between file 2 and file 3 etc).
+
+Unfortunately, `7z2hashcat` itself does not give us all of this information, i.e. we do not know all the file lengths for each and every file belonging to the same stream, we only know the length of the **first** file.
+
+That said, the data for the first file within the output file, written by `hc_to_7z`, should still be 100% complete and correct (we know this also by the first file's CRC32 checksum), it is just the "extra data" of this "stream" that will make the integrity test (e.g. `7z t tmp.7z`) fail (but fortunately most tools can still extract the data correctly, even if there is "more data"), i.e. data which would normally belong to the next (second, third, ...) files.
+
+We can't easily fix this, because a fix would only make sense if either `7z2hashcat` outputs much more info, or if we try to perform even more advanced parsing of the data, i.e. decryption/decoding/decompression/pre-processing within `hc_to_7z` of this `stream` data. It would be a little bit exaggerated to do all this in this POC tool (we would need to add many compression/decompression algorithms and pre-processing filters in this perl scrypt, like `LZMA2`, `Delta` etc), just to make the `integrity test` not fail.
+
 # Hacking / Missing features
 
 * More features
