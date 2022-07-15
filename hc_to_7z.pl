@@ -4,7 +4,7 @@
 # Date:    July 2022
 # License: public domain, credits go to philsmd and hashcat
 
-# Version: 0.02
+# Version: 0.03
 
 # Last updated:
 # July 13 2022
@@ -23,10 +23,12 @@ use Digest::CRC qw (crc32);
 #
 
 my $TOOL_NAME    = "hc_to_7z";
-my $TOOL_VERSION = "0.02";
+my $TOOL_VERSION = "0.03";
 
 my $SEVEN_ZIP_FILE_NAME     = "a\x00.\x00t\x00x\x00t\x00"; # a.txt
 my $SEVEN_ZIP_SIGNATURE_LEN = 32;
+
+my $SEVEN_ZIP_TIME_OFFSET = 11644473600; # offset between unix/win epoch, 1/1/1970 vs 1/1/1601
 
 my $SEVEN_ZIP_MAGIC = "7z\xbc\xaf\x27\x1c";
 
@@ -1080,7 +1082,7 @@ sub extracted_hash_to_archive
     $unix_timestamp = $mod_time;
   }
 
-  my $modification_time = ($unix_timestamp + 11644473590) * 10000000; # or 11644480790
+  my $modification_time = ($unix_timestamp + $SEVEN_ZIP_TIME_OFFSET) * 10000000;
 
   my $file_permission = 2176090144; # type: uint32_t, 4 bytes
 
