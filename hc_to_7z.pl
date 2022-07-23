@@ -1211,6 +1211,51 @@ sub write_output_file
   close ($out_file);
 }
 
+sub extract_argv
+{
+  my $argc = shift;
+  my $pos  = shift;
+  my $exp  = shift; # array of expected values (always short and long, 2 items)
+
+  if ($pos >= $argc)
+  {
+    print STDERR "ERROR: missing command line argument at position $pos\n";
+
+    exit (1);
+  }
+
+  my $arg = $ARGV[$pos];
+
+  if ($arg =~ m/^$$exp[0]=?$/ || # only 1 argument, e.g. -t=0 or --time0
+      $arg =~ m/^$$exp[1]=?$/)
+  {
+    $pos++;
+
+    if ($pos >= $argc)
+    {
+      print STDERR "ERROR: value for argument '$$exp[0]' is missing\n";
+
+      exit (1);
+    }
+
+    $arg = $ARGV[$pos];
+  }
+  else
+  {
+    $arg =~ s/^$$exp[0]=?//;
+    $arg =~ s/^$$exp[1]=?//;
+  }
+
+  if (length ($arg) < 1)
+  {
+    print STDERR "ERROR: value for argument '$$exp[0]' is missing\n";
+
+    exit (1);
+  }
+
+  return ($arg, $pos);
+}
+
 sub usage
 {
   my $executable_name = shift;
@@ -1305,121 +1350,28 @@ if ($argc > 0)
 
         exit (0);
       }
-      elsif ($arg =~ m/^-o=?$/ || # -o with 2 argument fields
-             $arg =~ m/^--output=?$/)
-      {
-        $i++;
-
-        if ($i >= $argc)
-        {
-          print STDERR "ERROR: file name missing for argument -o\n";
-
-          exit (1);
-        }
-
-        $output_name_prefix = $ARGV[$i];
-
-        next;
-      }
-      elsif ($arg =~ m/^-o.*$/ || # -o with just 1 argument (e.g. -otmp.7z)
+      elsif ($arg =~ m/^-o.*$/ ||
              $arg =~ m/^--output.*$/)
       {
-        $output_name_prefix = $arg;
-
-        $output_name_prefix =~ s/^-o=?//;
-        $output_name_prefix =~ s/^--output=?//;
+        ($output_name_prefix, $i) = extract_argv ($argc, $i, ["-o", "--output"]);
 
         next;
       }
-      elsif ($arg =~ m/^-n=?$/ || # -n with 2 argument fields
-             $arg =~ m/^--name=?$/)
-      {
-        $i++;
-
-        if ($i >= $argc)
-        {
-          print STDERR "ERROR: main file name missing for argument -n\n";
-
-          exit (1);
-        }
-
-        $main_file_name_arg = $ARGV[$i];
-
-        next;
-      }
-      elsif ($arg =~ m/^-n.*$/ || # -n with just 1 argument (e.g. -na.txt)
+      elsif ($arg =~ m/^-n.*$/ ||
              $arg =~ m/^--name.*$/)
       {
-        $main_file_name_arg = $arg;
-
-        $main_file_name_arg =~ s/^-n=?//;
-        $main_file_name_arg =~ s/^--name=?//;
+        ($main_file_name_arg, $i) = extract_argv ($argc, $i, ["-n", "--name"]);
 
         next;
       }
-      elsif ($arg =~ m/^-t=?$/ || # -t with 2 argument fields
-             $arg =~ m/^--time=?$/)
-      {
-        $i++;
-
-        if ($i >= $argc)
-        {
-          print STDERR "ERROR: unix time stamp missing for argument -t\n";
-
-          exit (1);
-        }
-
-        $modification_time_arg = $ARGV[$i];
-
-        if ($modification_time_arg !~ m/^[0-9]+$/)
-        {
-          print STDERR "ERROR: invalid unix time stamp for argument -t\n";
-
-          exit (1);
-        }
-
-        $modification_time_arg = int ($modification_time_arg);
-
-        next;
-      }
-      elsif ($arg =~ m/^-t.*$/ || # -t with just 1 argument (e.g. -t1600000000)
+      elsif ($arg =~ m/^-t.*$/ ||
              $arg =~ m/^--time.*$/)
       {
-        $modification_time_arg = $arg;
-
-        $modification_time_arg =~ s/^-t=?//;
-        $modification_time_arg =~ s/^--time=?//;
+        ($modification_time_arg, $i) = extract_argv ($argc, $i, ["-t", "--time"]);
 
         if ($modification_time_arg !~ m/^[0-9]+$/)
         {
           print STDERR "ERROR: invalid unix time stamp for argument -t\n";
-
-          exit (1);
-        }
-
-        $modification_time_arg = int ($modification_time_arg);
-
-        next;
-      }
-      elsif ($arg =~ m/^-c=?$/ || # -c with 2 argument fields
-             $arg =~ m/^--chmod=?$/)
-      {
-        $i++;
-
-        if ($i >= $argc)
-        {
-          print STDERR "ERROR: chmod octal file permission number is missing for argument -c\n";
-
-          exit (1);
-        }
-
-        $chmod = $ARGV[$i];
-
-        # 000...777 (3 times r w x, +4 +2 +1, user (u), group (g), others (o))
-
-        if ($chmod !~ m/^[0-7][0-7][0-7]$/)
-        {
-          print STDERR "ERROR: invalid octal file permission for argument -c (000...777)\n";
 
           exit (1);
         }
@@ -1429,10 +1381,7 @@ if ($argc > 0)
       elsif ($arg =~ m/^-c.*$/ || # -c with just 1 argument (e.g. -c777)
              $arg =~ m/^--chmod.*$/)
       {
-        $chmod = $arg;
-
-        $chmod =~ s/^-c=?//;
-        $chmod =~ s/^--chmod=?//;
+        ($chmod, $i) = extract_argv ($argc, $i, ["-c", "--chmod"]);
 
         # 000...777 (3 times r w x, +4 +2 +1, user (u), group (g), others (o))
 
