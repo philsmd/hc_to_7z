@@ -30,8 +30,8 @@ my $SEVEN_ZIP_SIGNATURE_LEN = 32;
 
 my $SEVEN_ZIP_TIME_OFFSET = 11644473600; # offset between unix/win epoch, 1/1/1970 vs 1/1/1601
 
-my $SEVEN_ZIP_DEFAULT_OUTPUT_NAME     = "tmp";
-my $SEVEN_ZIP_DEFAULT_FILE_PERMISSION = 664; # octal/numeric chmod format, 664 = -rw-rw-r--
+my $SEVEN_ZIP_OUTPUT_NAME     = "tmp";
+my $SEVEN_ZIP_FILE_PERMISSION = 664; # octal/numeric chmod format, 664 = -rw-rw-r--
 
 my $SEVEN_ZIP_MAGIC = "7z\xbc\xaf\x27\x1c";
 
@@ -1096,7 +1096,7 @@ sub extracted_hash_to_archive
 
   # 000...777 (3 times r w x, +4 +2 +1, user (u), group (g), others (o))
 
-  my $octal_chmod = oct ($SEVEN_ZIP_DEFAULT_FILE_PERMISSION); # 664, -rw-rw-r--
+  my $octal_chmod = oct ($SEVEN_ZIP_FILE_PERMISSION); # 664, -rw-rw-r--
 
   if ($chmod != -1)
   {
@@ -1299,7 +1299,7 @@ sub version_long
 
 # Check if there are some command line parameters:
 
-my $output_name_arg       = $SEVEN_ZIP_DEFAULT_OUTPUT_NAME;
+my $output_name_arg       = $SEVEN_ZIP_OUTPUT_NAME;
 my $main_file_name_arg    = "";
 my $modification_time_arg = -1;
 my $chmod_arg             = -1;
