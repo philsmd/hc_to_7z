@@ -30,6 +30,7 @@ my $SEVEN_ZIP_SIGNATURE_LEN = 32;
 
 my $SEVEN_ZIP_TIME_OFFSET = 11644473600; # offset between unix/win epoch, 1/1/1970 vs 1/1/1601
 
+my $SEVEN_ZIP_DEFAULT_OUTPUT_NAME     = "tmp";
 my $SEVEN_ZIP_DEFAULT_FILE_PERMISSION = 664; # octal/numeric chmod format, 664 = -rw-rw-r--
 
 my $SEVEN_ZIP_MAGIC = "7z\xbc\xaf\x27\x1c";
@@ -1298,10 +1299,10 @@ sub version_long
 
 # Check if there are some command line parameters:
 
-my $output_name_prefix    = "tmp";
+my $output_name_arg       = $SEVEN_ZIP_DEFAULT_OUTPUT_NAME;
 my $main_file_name_arg    = "";
 my $modification_time_arg = -1;
-my $chmod                 = -1;
+my $chmod_arg             = -1;
 
 my $stop_accepting_arguments = 0;
 
@@ -1348,7 +1349,7 @@ for (my $i = 0; $i < $argc; $i++)
   elsif ($arg =~ m/^-o.*$/ ||
          $arg =~ m/^--output.*$/)
   {
-    ($output_name_prefix, $i) = extract_argv ($argc, $i, ["-o", "--output"]);
+    ($output_name_arg, $i) = extract_argv ($argc, $i, ["-o", "--output"]);
   }
   elsif ($arg =~ m/^-n.*$/ ||
          $arg =~ m/^--name.*$/)
@@ -1370,11 +1371,11 @@ for (my $i = 0; $i < $argc; $i++)
   elsif ($arg =~ m/^-c.*$/ || # -c with just 1 argument (e.g. -c777)
          $arg =~ m/^--chmod.*$/)
   {
-    ($chmod, $i) = extract_argv ($argc, $i, ["-c", "--chmod"]);
+    ($chmod_arg, $i) = extract_argv ($argc, $i, ["-c", "--chmod"]);
 
     # 000...777 (3 times r w x, +4 +2 +1, user (u), group (g), others (o))
 
-    if ($chmod !~ m/^[0-7][0-7][0-7]$/)
+    if ($chmod_arg !~ m/^[0-7][0-7][0-7]$/)
     {
       print STDERR "ERROR: invalid octal file permission for argument -c (000...777)\n";
 
@@ -1525,6 +1526,7 @@ foreach my $hash_file_name (@hash_files)
 
     my $file_name = $main_file_name;
     my $mod_time  = $modification_time_arg;
+    my $chmod     = $chmod_arg;
 
     my $bin_data = extracted_hash_to_archive ($line, $line_num, $file_name, $mod_time, $chmod);
 
@@ -1539,7 +1541,7 @@ foreach my $hash_file_name (@hash_files)
 
     # determining final file name (could be multiple output files in total, with count):
 
-    my $seven_zip_file_name = $output_name_prefix;
+    my $seven_zip_file_name = $output_name_arg;
 
     if ($seven_zip_file_name_in_line ne "")
     {
