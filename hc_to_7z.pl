@@ -30,6 +30,8 @@ my $SEVEN_ZIP_SIGNATURE_LEN = 32;
 
 my $SEVEN_ZIP_TIME_OFFSET = 11644473600; # offset between unix/win epoch, 1/1/1970 vs 1/1/1601
 
+my $SEVEN_ZIP_DEFAULT_FILE_PERMISSION = 664; # octal/numeric chmod format, 664 = -rw-rw-r--
+
 my $SEVEN_ZIP_MAGIC = "7z\xbc\xaf\x27\x1c";
 
 my $SEVEN_ZIP_END                = "\x00";
@@ -599,6 +601,7 @@ sub extracted_hash_to_archive
   my $line_num  = shift;
   my $main_name = shift;
   my $mod_time  = shift;
+  my $chmod     = shift;
 
   my @fields = split (/\$/, $hash);
 
@@ -1084,8 +1087,24 @@ sub extracted_hash_to_archive
 
   my $modification_time = ($unix_timestamp + $SEVEN_ZIP_TIME_OFFSET) * 10000000;
 
-  my $file_permission = 2176090144; # type: uint32_t, 4 bytes
+  my $file_permission = 0; # or hard-code it like: 2176090144 (-rw-rw-r--)
 
+  $file_permission |= 0b0000000000100000 <<  0; # FILE_ATTRIBUTE_ARCHIVE (not directory = 0b10000)
+  $file_permission |= 0b1000000000000000 <<  0; # FILE_ATTRIBUTE_UNIX_EXTENSION (0x8000)
+  $file_permission |= 0b1000000000000000 << 16; # start of st_mode & 0xffff: S_IFREG=regular, stat.h
+
+  # 000...777 (3 times r w x, +4 +2 +1, user (u), group (g), others (o))
+
+  my $octal_chmod = oct ($SEVEN_ZIP_DEFAULT_FILE_PERMISSION); # 664, -rw-rw-r--
+
+  if ($chmod != -1)
+  {
+    $octal_chmod = oct ($chmod);
+  }
+
+  $file_permission |= $octal_chmod << 16; # "highAttrib" for UNIX EXTENSION
+
+  # Examples:
   # $file_permission = 2176090144; # -rw-rw-r--
   # $file_permission = 2176221216; # -rw-rw-rw-
   # $file_permission = 2166652961; # -r--r--r--
@@ -1209,6 +1228,7 @@ sub usage
   print "-o, --output        | Str  | File to write to (output 7-Zip archive file) | -o ab.7z\n";
   print "-n, --name          | Str  | Name of the file used within the 7-Zip file  | -n a.bin\n";
   print "-t, --time          | Num  | Unix modification time of the main file      | -t 99999\n";
+  print "-c, --chmod         | Num  | Unix chmod octal file permission             | -c 600\n";
   print "--                  |      | Stops parsing command line arguments         |\n";
   print "\n";
 }
@@ -1236,6 +1256,7 @@ sub version_long
 my $output_name_prefix    = "tmp";
 my $main_file_name_arg    = "";
 my $modification_time_arg = -1;
+my $chmod                 = -1;
 
 my @hash_files = ();
 
@@ -1361,7 +1382,7 @@ if ($argc > 0)
 
         next;
       }
-      elsif ($str =~ m/^-t.*$/ || # -t with just 1 argument (e.g. -t 1600000000)
+      elsif ($str =~ m/^-t.*$/ || # -t with just 1 argument (e.g. -t1600000000)
              $str =~ m/^--time.*$/)
       {
         $modification_time_arg = $str;
@@ -1377,6 +1398,50 @@ if ($argc > 0)
         }
 
         $modification_time_arg = int ($modification_time_arg);
+
+        next;
+      }
+      elsif ($str =~ m/^-c=?$/ || # -c with 2 argument fields
+             $str =~ m/^--chmod=?$/)
+      {
+        $i++;
+
+        if ($i >= $argc)
+        {
+          print STDERR "ERROR: chmod octal file permission number is missing for argument -c\n";
+
+          exit (1);
+        }
+
+        $chmod = $ARGV[$i];
+
+        # 000...777 (3 times r w x, +4 +2 +1, user (u), group (g), others (o))
+
+        if ($chmod !~ m/^[0-7][0-7][0-7]$/)
+        {
+          print STDERR "ERROR: invalid octal file permission for argument -c (000...777)\n";
+
+          exit (1);
+        }
+
+        next;
+      }
+      elsif ($str =~ m/^-c.*$/ || # -c with just 1 argument (e.g. -c777)
+             $str =~ m/^--chmod.*$/)
+      {
+        $chmod = $str;
+
+        $chmod =~ s/^-c=?//;
+        $chmod =~ s/^--chmod=?//;
+
+        # 000...777 (3 times r w x, +4 +2 +1, user (u), group (g), others (o))
+
+        if ($chmod !~ m/^[0-7][0-7][0-7]$/)
+        {
+          print STDERR "ERROR: invalid octal file permission for argument -c (000...777)\n";
+
+          exit (1);
+        }
 
         next;
       }
@@ -1529,7 +1594,7 @@ foreach my $hash_file_name (@hash_files)
     my $file_name = $main_file_name;
     my $mod_time  = $modification_time_arg;
 
-    my $bin_data = extracted_hash_to_archive ($line, $line_num, $file_name, $mod_time);
+    my $bin_data = extracted_hash_to_archive ($line, $line_num, $file_name, $mod_time, $chmod);
 
 
     if (length ($bin_data) < 1)
