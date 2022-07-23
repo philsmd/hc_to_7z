@@ -100,7 +100,7 @@ my $SEVEN_ZIP_AES_DEFAULT_ATTRIBUTES = 0x40; # e.g. 0x40 + 0x13 = 0x53, 0x13 => 
 
 my $SEVEN_ZIP_CODEC_IDS =
 [
-  # SEVEN_ZIP_ALPHA and SEVEN_ZIP_COPY missing:
+  # note: SEVEN_ZIP_ALPHA missing
   # compressors:
   {
     $SEVEN_ZIP_UNCOMPRESSED       => $SEVEN_ZIP_COPY,
