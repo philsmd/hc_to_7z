@@ -1303,108 +1303,91 @@ my $main_file_name_arg    = "";
 my $modification_time_arg = -1;
 my $chmod                 = -1;
 
+my $stop_accepting_arguments = 0;
+
 my @hash_files = ();
 
 my $argc = scalar (@ARGV);
 
-if ($argc > 0)
+for (my $i = 0; $i < $argc; $i++)
 {
-  my $stop_accepting_arguments = 0;
+  my $arg = $ARGV[$i];
 
-  for (my $i = 0; $i < $argc; $i++)
+  if ($stop_accepting_arguments == 1)
   {
-    my $arg = $ARGV[$i];
-
-    if ($stop_accepting_arguments == 1)
-    {
-      push (@hash_files, $arg);
-
-      next;
-    }
-
-    if ($arg =~ m/^-/)
-    {
-      if ($arg =~ m/^--$/)
-      {
-        $stop_accepting_arguments = 1;
-
-        next;
-      }
-      elsif ($arg =~ m/^-h$/ ||
-             $arg =~ m/^--help$/)
-      {
-        usage ($0);
-
-        exit (0);
-      }
-      elsif ($arg =~ m/^-v$/ ||
-             $arg =~ m/^-V$/)
-      {
-        version_short ();
-
-        exit (0);
-      }
-      elsif ($arg =~ m/^--version$/)
-      {
-        version_long ();
-
-        exit (0);
-      }
-      elsif ($arg =~ m/^-o.*$/ ||
-             $arg =~ m/^--output.*$/)
-      {
-        ($output_name_prefix, $i) = extract_argv ($argc, $i, ["-o", "--output"]);
-
-        next;
-      }
-      elsif ($arg =~ m/^-n.*$/ ||
-             $arg =~ m/^--name.*$/)
-      {
-        ($main_file_name_arg, $i) = extract_argv ($argc, $i, ["-n", "--name"]);
-
-        next;
-      }
-      elsif ($arg =~ m/^-t.*$/ ||
-             $arg =~ m/^--time.*$/)
-      {
-        ($modification_time_arg, $i) = extract_argv ($argc, $i, ["-t", "--time"]);
-
-        if ($modification_time_arg !~ m/^[0-9]+$/)
-        {
-          print STDERR "ERROR: invalid unix time stamp for argument -t\n";
-
-          exit (1);
-        }
-
-        next;
-      }
-      elsif ($arg =~ m/^-c.*$/ || # -c with just 1 argument (e.g. -c777)
-             $arg =~ m/^--chmod.*$/)
-      {
-        ($chmod, $i) = extract_argv ($argc, $i, ["-c", "--chmod"]);
-
-        # 000...777 (3 times r w x, +4 +2 +1, user (u), group (g), others (o))
-
-        if ($chmod !~ m/^[0-7][0-7][0-7]$/)
-        {
-          print STDERR "ERROR: invalid octal file permission for argument -c (000...777)\n";
-
-          exit (1);
-        }
-
-        next;
-      }
-      else
-      {
-        print STDERR "ERROR: unknown command line argument '$arg'\n\n";
-
-        usage ($0);
-
-        exit (1);
-      }
-    }
-
     push (@hash_files, $arg);
+  }
+  elsif ($arg !~ m/^-/) # for sure not a command line switch/option
+  {
+    push (@hash_files, $arg);
+  }
+  elsif ($arg =~ m/^--$/)
+  {
+    $stop_accepting_arguments = 1;
+  }
+  elsif ($arg =~ m/^-h$/ ||
+         $arg =~ m/^--help$/)
+  {
+    usage ($0);
+
+    exit (0);
+  }
+  elsif ($arg =~ m/^-v$/ ||
+         $arg =~ m/^-V$/)
+  {
+    version_short ();
+
+    exit (0);
+  }
+  elsif ($arg =~ m/^--version$/)
+  {
+    version_long ();
+
+    exit (0);
+  }
+  elsif ($arg =~ m/^-o.*$/ ||
+         $arg =~ m/^--output.*$/)
+  {
+    ($output_name_prefix, $i) = extract_argv ($argc, $i, ["-o", "--output"]);
+  }
+  elsif ($arg =~ m/^-n.*$/ ||
+         $arg =~ m/^--name.*$/)
+  {
+    ($main_file_name_arg, $i) = extract_argv ($argc, $i, ["-n", "--name"]);
+  }
+  elsif ($arg =~ m/^-t.*$/ ||
+         $arg =~ m/^--time.*$/)
+  {
+    ($modification_time_arg, $i) = extract_argv ($argc, $i, ["-t", "--time"]);
+
+    if ($modification_time_arg !~ m/^[0-9]+$/)
+    {
+      print STDERR "ERROR: invalid unix time stamp for argument -t\n";
+
+      exit (1);
+    }
+  }
+  elsif ($arg =~ m/^-c.*$/ || # -c with just 1 argument (e.g. -c777)
+         $arg =~ m/^--chmod.*$/)
+  {
+    ($chmod, $i) = extract_argv ($argc, $i, ["-c", "--chmod"]);
+
+    # 000...777 (3 times r w x, +4 +2 +1, user (u), group (g), others (o))
+
+    if ($chmod !~ m/^[0-7][0-7][0-7]$/)
+    {
+      print STDERR "ERROR: invalid octal file permission for argument -c (000...777)\n";
+
+      exit (1);
+    }
+  }
+  else
+  {
+    print STDERR "ERROR: unknown command line argument '$arg'\n\n";
+
+    usage ($0);
+
+    exit (1);
   }
 }
 
