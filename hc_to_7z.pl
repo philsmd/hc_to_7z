@@ -1268,45 +1268,45 @@ if ($argc > 0)
 
   for (my $i = 0; $i < $argc; $i++)
   {
-    my $str = $ARGV[$i];
+    my $arg = $ARGV[$i];
 
     if ($stop_accepting_arguments == 1)
     {
-      push (@hash_files, $str);
+      push (@hash_files, $arg);
 
       next;
     }
 
-    if ($str =~ m/^-/)
+    if ($arg =~ m/^-/)
     {
-      if ($str =~ m/^--$/)
+      if ($arg =~ m/^--$/)
       {
         $stop_accepting_arguments = 1;
 
         next;
       }
-      elsif ($str =~ m/^-h$/ ||
-             $str =~ m/^--help$/)
+      elsif ($arg =~ m/^-h$/ ||
+             $arg =~ m/^--help$/)
       {
         usage ($0);
 
         exit (0);
       }
-      elsif ($str =~ m/^-v$/ ||
-             $str =~ m/^-V$/)
+      elsif ($arg =~ m/^-v$/ ||
+             $arg =~ m/^-V$/)
       {
         version_short ();
 
         exit (0);
       }
-      elsif ($str =~ m/^--version$/)
+      elsif ($arg =~ m/^--version$/)
       {
         version_long ();
 
         exit (0);
       }
-      elsif ($str =~ m/^-o=?$/ || # -o with 2 argument fields
-             $str =~ m/^--output=?$/)
+      elsif ($arg =~ m/^-o=?$/ || # -o with 2 argument fields
+             $arg =~ m/^--output=?$/)
       {
         $i++;
 
@@ -1321,18 +1321,18 @@ if ($argc > 0)
 
         next;
       }
-      elsif ($str =~ m/^-o.*$/ || # -o with just 1 argument (e.g. -otmp.7z)
-             $str =~ m/^--output.*$/)
+      elsif ($arg =~ m/^-o.*$/ || # -o with just 1 argument (e.g. -otmp.7z)
+             $arg =~ m/^--output.*$/)
       {
-        $output_name_prefix = $str;
+        $output_name_prefix = $arg;
 
         $output_name_prefix =~ s/^-o=?//;
         $output_name_prefix =~ s/^--output=?//;
 
         next;
       }
-      elsif ($str =~ m/^-n=?$/ || # -n with 2 argument fields
-             $str =~ m/^--name=?$/)
+      elsif ($arg =~ m/^-n=?$/ || # -n with 2 argument fields
+             $arg =~ m/^--name=?$/)
       {
         $i++;
 
@@ -1347,18 +1347,18 @@ if ($argc > 0)
 
         next;
       }
-      elsif ($str =~ m/^-n.*$/ || # -n with just 1 argument (e.g. -na.txt)
-             $str =~ m/^--name.*$/)
+      elsif ($arg =~ m/^-n.*$/ || # -n with just 1 argument (e.g. -na.txt)
+             $arg =~ m/^--name.*$/)
       {
-        $main_file_name_arg = $str;
+        $main_file_name_arg = $arg;
 
         $main_file_name_arg =~ s/^-n=?//;
         $main_file_name_arg =~ s/^--name=?//;
 
         next;
       }
-      elsif ($str =~ m/^-t=?$/ || # -t with 2 argument fields
-             $str =~ m/^--time=?$/)
+      elsif ($arg =~ m/^-t=?$/ || # -t with 2 argument fields
+             $arg =~ m/^--time=?$/)
       {
         $i++;
 
@@ -1382,10 +1382,10 @@ if ($argc > 0)
 
         next;
       }
-      elsif ($str =~ m/^-t.*$/ || # -t with just 1 argument (e.g. -t1600000000)
-             $str =~ m/^--time.*$/)
+      elsif ($arg =~ m/^-t.*$/ || # -t with just 1 argument (e.g. -t1600000000)
+             $arg =~ m/^--time.*$/)
       {
-        $modification_time_arg = $str;
+        $modification_time_arg = $arg;
 
         $modification_time_arg =~ s/^-t=?//;
         $modification_time_arg =~ s/^--time=?//;
@@ -1401,8 +1401,8 @@ if ($argc > 0)
 
         next;
       }
-      elsif ($str =~ m/^-c=?$/ || # -c with 2 argument fields
-             $str =~ m/^--chmod=?$/)
+      elsif ($arg =~ m/^-c=?$/ || # -c with 2 argument fields
+             $arg =~ m/^--chmod=?$/)
       {
         $i++;
 
@@ -1426,10 +1426,10 @@ if ($argc > 0)
 
         next;
       }
-      elsif ($str =~ m/^-c.*$/ || # -c with just 1 argument (e.g. -c777)
-             $str =~ m/^--chmod.*$/)
+      elsif ($arg =~ m/^-c.*$/ || # -c with just 1 argument (e.g. -c777)
+             $arg =~ m/^--chmod.*$/)
       {
-        $chmod = $str;
+        $chmod = $arg;
 
         $chmod =~ s/^-c=?//;
         $chmod =~ s/^--chmod=?//;
@@ -1447,7 +1447,7 @@ if ($argc > 0)
       }
       else
       {
-        print STDERR "ERROR: unknown command line argument '$str'\n\n";
+        print STDERR "ERROR: unknown command line argument '$arg'\n\n";
 
         usage ($0);
 
@@ -1455,7 +1455,7 @@ if ($argc > 0)
       }
     }
 
-    push (@hash_files, $str);
+    push (@hash_files, $arg);
   }
 }
 
