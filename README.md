@@ -18,9 +18,11 @@ Software:
     ```git clone https://github.com/philsmd/hc_to_7z```
 * Enter the repository root folder:  
     ```cd hc_to_7z```
-* Run it:  
+* Run it in your terminal/shell/cmd:  
     ```perl hc_to_7z.pl hashes.txt```
 * Open the file mentioned within your terminal/shell with your preferred archive tool/viewer
+  
+Note that `hc_to_7z` is a terminal application. This means that you need to open your shell program like `cmd` or `konsole`/`shell`/`xterm` first and afterwards run this perl script.
 
 # Command line parameters
 
