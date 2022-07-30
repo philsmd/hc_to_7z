@@ -64,7 +64,7 @@ Unfortunately, `7z2hashcat` itself does not give us all of this information, i.e
 
 That said, the data for the first file within the output file, written by `hc_to_7z`, should still be 100% complete and correct (we know this also by the first file's CRC32 checksum), it is just the "extra data" of this "stream" that will make the integrity test (e.g. `7z t tmp.7z`) fail (but fortunately most tools can still extract the data correctly, even if there is "more data"), i.e. data which would normally belong to the next (second, third, ...) files.
 
-We can't easily fix this, because a fix would only make sense if either `7z2hashcat` outputs much more info, or if we try to perform even more advanced parsing of the data, i.e. decryption/decoding/decompression/pre-processing within `hc_to_7z` of this `stream` data. It would be a little bit exaggerated to do all this in this POC tool (we would need to add many compression/decompression algorithms and pre-processing filters in this perl scrypt, like `LZMA2`, `Delta` etc), just to make the `integrity test` not fail.
+We can't easily fix this, because a fix would only make sense if either `7z2hashcat` outputs much more info, or if we try to perform even more advanced parsing of the data, i.e. decryption/decoding/decompression/pre-processing within `hc_to_7z` of this `stream` data. It would be a little bit exaggerated to do all this in this POC tool (we would need to add many compression/decompression algorithms and pre-processing filters in this perl script, like `LZMA2`, `Delta` etc), just to make the `integrity test` not fail.
 
 # Hacking / Missing features
 
